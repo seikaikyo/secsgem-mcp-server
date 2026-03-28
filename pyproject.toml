@@ -1,0 +1,13 @@
+[project]
+name = "secsgem-mcp-server"
+version = "0.1.0"
+description = "MCP Server for SECS/GEM semiconductor equipment control via go-factory-io"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+    "fastmcp>=2.0.0",
+    "httpx>=0.27.0",
+]
+
+[project.scripts]
+secsgem-mcp = "server:main"

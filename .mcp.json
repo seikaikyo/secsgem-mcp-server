@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "secsgem": {
+      "command": "python",
+      "args": ["server.py"],
+      "env": {
+        "SECSGEM_API_URL": "http://localhost:8080"
+      }
+    }
+  }
+}
