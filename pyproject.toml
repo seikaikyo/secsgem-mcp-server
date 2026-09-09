@@ -4,9 +4,12 @@ version = "0.1.0"
 description = "MCP Server for SECS/GEM semiconductor equipment control via go-factory-io"
 requires-python = ">=3.11"
 license = "MIT"
+# 釘死版本，兩個理由：
+#   相依掃描只查得到釘死的版本，範圍寫法會被列為 unresolved，等於沒掃
+#   沒有上界時新裝的環境會拿到不相容的主版本，這支伺服器就是這樣壞掉的
 dependencies = [
-    "fastmcp>=2.0.0",
-    "httpx>=0.27.0",
+    "fastmcp==2.14.7",
+    "httpx==0.28.1",
 ]
 
 [project.scripts]
