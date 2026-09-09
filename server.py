@@ -10,16 +10,33 @@ from fastmcp import FastMCP
 
 BASE_URL = os.environ.get("SECSGEM_API_URL", "http://localhost:8080")
 
+# go-factory-io 的 REST API 用 bearer token，讀與寫分開，而且沒設 token 時
+# 只肯在 loopback 位址提供服務（pkg/security/apitoken.go 的 RequireTokenForListen）。
+# 這支伺服器原本完全不送憑證，所以只對關掉授權的實例有用。
+#
+# 給哪一把鑰匙就決定這台 MCP server 能做什麼：
+#   讀取 token → 監控類工具可用，寫入類工具會被上游擋下（403）
+#   寫入 token → 全部可用（上游的寫入 token 同時涵蓋讀取）
+# 沒設就不送 Authorization，維持原本對本機無授權實例的行為。
+API_TOKEN = os.environ.get("SECSGEM_API_TOKEN", "").strip()
+
+
+def _headers() -> dict:
+    return {"Authorization": f"Bearer {API_TOKEN}"} if API_TOKEN else {}
+
 mcp = FastMCP(
     "secsgem",
-    description="Control semiconductor equipment via SECS/GEM protocols. "
+    # FastMCP 在 2.x 期間把這個參數從 description 改名為 instructions。
+    # pyproject 原本寫 fastmcp>=2.0.0 沒有上界，所以新裝的環境會拿到
+    # 不收 description 的版本，伺服器在匯入時就 TypeError。
+    instructions="Control semiconductor equipment via SECS/GEM protocols. "
     "Connects to go-factory-io for equipment monitoring, parameter adjustment, "
     "carrier management, and process job control.",
 )
 
 
 def _client() -> httpx.Client:
-    return httpx.Client(base_url=BASE_URL, timeout=10.0)
+    return httpx.Client(base_url=BASE_URL, timeout=10.0, headers=_headers())
 
 
 def _get(path: str) -> dict:
